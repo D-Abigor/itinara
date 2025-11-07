@@ -1,0 +1,4 @@
+*.ign.py
+*.pbf
+*.env
+/frontend
