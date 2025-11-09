@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>ITINARA — Travel Search</title>
+
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --primary:#0077d6;
+      --primary-700:#005fa3;
+      --muted:#6b7280;
+      --card:#ffffff;
+      --glass: rgba(255,255,255,0.7);
+      --shadow: 0 8px 30px rgba(15,23,42,0.12);
+      --radius:14px;
+      --max-width:1200px;
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;font-family:"Poppins",system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;}
+    body{
+      background: linear-gradient(180deg,#eaf6ff 0%, #f8fbff 60%);
+      color:#0f172a;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      padding:28px;
+      display:flex;
+      justify-content:center;
+      align-items:flex-start;
+      gap:20px;
+    }
+
+    .site {
+      width:100%;
+      max-width: var(--max-width);
+    }
+
+    /* Top Navigation */
+    .topbar{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:16px;
+      margin-bottom:18px;
+    }
+    .brand {
+      display:flex;
+      align-items:center;
+      gap:12px;
+    }
+    .logo {
+      width:44px;height:44px;border-radius:10px;
+      background:linear-gradient(135deg,var(--primary),var(--primary-700));
+      display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;
+      box-shadow: 0 6px 18px rgba(0,119,214,0.22);
+      font-size:18px;
+      flex-shrink:0;
+    }
+    .brand h1{margin:0;font-size:20px;letter-spacing:0.2px}
+    .brand small{display:block;color:var(--muted);font-weight:500;margin-top:2px;font-size:12px}
+
+    .top-actions{
+      display:flex;align-items:center;gap:12px;
+    }
+
+    .searchbar {
+      display:flex;align-items:center;gap:8px;
+      background:#fff;border-radius:12px;padding:10px 12px;box-shadow:var(--shadow);
+      min-width:480px;max-width:720px;width:50%;
+    }
+    .searchbar input{
+      border:0;outline:none;font-size:14px;width:100%;
+    }
+    .icon-btn {
+      background:transparent;border:0;padding:6px;border-radius:8px;cursor:pointer;
+    }
+    .profile {
+      display:flex;align-items:center;gap:10px;background:#fff;padding:8px 12px;border-radius:12px;
+      box-shadow:var(--shadow);
+    }
+    .avatar {width:36px;height:36px;border-radius:8px;background:#dbeafe;display:flex;align-items:center;justify-content:center;font-weight:600;color:var(--primary)}
+
+    /* Layout */
+    .layout {
+      display:grid;
+      grid-template-columns: 720px 1fr;
+      gap:20px;
+      align-items:start;
+    }
+
+    /* Left Column - hero / search card / services / offers */
+    .panel {
+      background:var(--card);
+      border-radius:var(--radius);
+      padding:18px;
+      box-shadow:var(--shadow);
+    }
+
+    .tabs {
+      display:flex;gap:8px;margin-bottom:14px;
+    }
+    .tab {
+      padding:10px 14px;border-radius:10px;cursor:pointer;font-weight:600;color:var(--muted);
+      background:transparent;border:1px solid transparent;transition:all .18s;
+    }
+    .tab.active{
+      color:#fff;background:linear-gradient(90deg,var(--primary),var(--primary-700));
+      box-shadow:0 6px 18px rgba(0,119,214,0.18);
+    }
+
+    /* Search Card */
+    .search-card{
+      display:flex;flex-direction:column;gap:12px;padding:14px;border-radius:12px;background:linear-gradient(180deg,#ffffff,#f7fbff);
+      border:1px solid rgba(3,102,214,0.06);
+    }
+    .row{display:flex;gap:10px;align-items:center}
+    .col{flex:1}
+    .input{
+      padding:12px 14px;border-radius:10px;border:1px solid #e6eef9;background:#fff;
+      outline:none;font-size:14px;
+    }
+    .swap-btn{
+      padding:8px;border-radius:10px;border:1px solid #e6eef9;background:#f6fbff;cursor:pointer;
+    }
+    .submit {
+      background:linear-gradient(90deg,var(--primary),var(--primary-700));
+      color:#fff;padding:12px 16px;border-radius:10px;border:0;font-weight:600;cursor:pointer;
+      box-shadow: 0 10px 30px rgba(0,119,214,0.15);
+    }
+
+    /* services grid */
+    .services {
+      display:grid;
+      grid-template-columns: repeat(4,1fr);
+      gap:12px;margin-top:14px;
+    }
+    .svc {
+      background:linear-gradient(180deg,#fff,#fbfdff);
+      border-radius:12px;padding:12px;display:flex;align-items:center;gap:12px;border:1px solid #edf6ff;
+      cursor:pointer;transition:transform .14s,box-shadow .14s;
+    }
+    .svc:hover{transform:translateY(-6px);box-shadow:0 14px 30px rgba(3,102,214,0.06)}
+    .svc .svc-icon{width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,#eef6ff,#e6f2ff);display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--primary)}
+    .svc small{display:block;color:var(--muted)}
+
+    /* offers carousel */
+    .offers-header{display:flex;justify-content:space-between;align-items:center;margin-top:16px;margin-bottom:8px}
+    .offers-tabs{display:flex;gap:8px}
+    .offers-tabs button{padding:8px 12px;border-radius:10px;border:0;background:#f2f6fb;cursor:pointer}
+    .offers-wrap{display:flex;gap:12px;overflow:hidden;padding:6px 0}
+    .offer-card{min-width:210px;border-radius:12px;padding:12px;background:linear-gradient(90deg,#ffffff,#f3fbff);border:1px solid #e6f3ff;box-shadow:0 8px 20px rgba(6,78,129,0.03)}
+    .offer-card h4{margin:0 0 8px 0;font-size:15px}
+    .offer-card p{margin:0;color:var(--muted);font-size:13px}
+
+    /* Right Column — results / recommended */
+    .right-top{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px}
+    .results {
+      display:flex;flex-direction:column;gap:12px;
+    }
+    .result-card{
+      background:linear-gradient(180deg,#fff,#fbfeff);border-radius:12px;padding:12px;border:1px solid #eaf6ff;
+      display:flex;justify-content:space-between;align-items:center;gap:12px;
+    }
+    .result-card .meta{display:flex;gap:10px;align-items:center}
+    .price{font-weight:700;color:var(--primary);font-size:16px}
+
+    /* small helpers */
+    label{font-size:12px;color:var(--muted);display:block;margin-bottom:6px}
+    .muted{color:var(--muted);font-size:13px}
+    .kbd{background:#f1f5f9;padding:6px 8px;border-radius:8px;border:1px solid #e6eef9;font-weight:600}
+
+    /* responsive */
+    @media (max-width:1100px){
+      .layout{grid-template-columns: 1fr}
+      .searchbar{min-width:280px;width:60%}
+      .services{grid-template-columns:repeat(3,1fr)}
+    }
+    @media (max-width:760px){
+      body{padding:16px}
+      .services{grid-template-columns:repeat(2,1fr)}
+      .searchbar{display:none}
+    }
+  </style>
+</head>
+<body>
+  <div class="site">
+    <!-- Top bar -->
+    <div class="topbar">
+      <div class="brand">
+        <div class="logo">IT</div>
+        <div>
+          <h1>ITINARA</h1>
+          <small>Plan. Book. Explore.</small>
+        </div>
+      </div>
+
+      <div class="top-actions">
+        <div class="searchbar" role="search">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="opacity:.6">
+            <path d="M21 21l-4.35-4.35" stroke="#374151" stroke-width="1.6" stroke-linecap="round"/>
+            <circle cx="11" cy="11" r="6" stroke="#374151" stroke-width="1.6"/>
+          </svg>
+          <input placeholder="Search flights, hotels, trains, packages..." aria-label="site search" />
+          <button class="icon-btn" title="Advanced"><span class="kbd">Filters</span></button>
+        </div>
+
+        <div class="profile">
+          <div style="text-align:right">
+            <div style="font-weight:600">Hello</div>
+            <div style="font-size:12px;color:var(--muted)">Sign in</div>
+          </div>
+          <div class="avatar">YT</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main layout -->
+    <div class="layout">
+      <!-- Left column -->
+      <div class="panel">
+        <div class="tabs" role="tablist" aria-label="travel categories">
+          <div class="tab active" data-tab="flights">✈️ Flights</div>
+          <div class="tab" data-tab="hotels">🏨 Hotels</div>
+          <div class="tab" data-tab="trains">🚆 Trains & Bus</div>
+          <div class="tab" data-tab="packages">🌴 Holiday Packages</div>
+        </div>
+
+        <!-- Search Card (Flights by default) -->
+        <div class="search-card" id="searchContainer">
+          <!-- Flights form -->
+          <form id="flightForm">
+            <div class="row">
+              <div class="col">
+                <label for="source">From</label>
+                <input id="source" class="input" type="text" placeholder="City or Airport (e.g. New Delhi)" required />
+              </div>
+
+              <div style="display:flex;flex-direction:column;align-items:center;justify-content:center">
+                <button type="button" class="swap-btn" id="swapBtn" title="Swap">⇅</button>
+              </div>
+
+              <div class="col">
+                <label for="destination">To</label>
+                <input id="destination" class="input" type="text" placeholder="City or Airport (e.g. Mumbai)" required />
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col">
+                <label for="date">Departure</label>
+                <input id="date" class="input" type="date" required />
+              </div>
+              <div style="min-width:140px">
+                <label for="time">Time</label>
+                <input id="time" class="input" type="time" required />
+              </div>
+              <div style="min-width:140px">
+                <label for="travellers">Travellers</label>
+                <input id="travellers" class="input" type="number" min="1" value="1" required />
+              </div>
+            </div>
+
+            <div style="display:flex;gap:10px;align-items:center;margin-top:6px">
+              <label style="margin:0"><input type="checkbox" id="nonstop" /> Non-stop only</label>
+              <div style="flex:1"></div>
+              <button class="submit" type="submit">Search Flights</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Services grid -->
+        <div class="services" role="list" aria-label="services">
+          <div class="svc" role="listitem">
+            <div class="svc-icon">🚖</div>
+            <div>
+              <div style="font-weight:600">Airport Cabs</div>
+              <small class="muted">Book quick rides</small>
+            </div>
+          </div>
+
+          <div class="svc">
+            <div class="svc-icon">🏠</div>
+            <div>
+              <div style="font-weight:600">Homestays</div>
+              <small class="muted">Unique stays</small>
+            </div>
+          </div>
+
+          <div class="svc">
+            <div class="svc-icon">🚌</div>
+            <div>
+              <div style="font-weight:600">Outstation Cabs</div>
+              <small class="muted">Long drives</small>
+            </div>
+          </div>
+
+          <div class="svc">
+            <div class="svc-icon">🛡️</div>
+            <div>
+              <div style="font-weight:600">Travel Insurance</div>
+              <small class="muted">Safe trips</small>
+            </div>
+          </div>
+
+          <div class="svc">
+            <div class="svc-icon">🎁</div>
+            <div>
+              <div style="font-weight:600">Gift Cards</div>
+              <small class="muted">Gifts & vouchers</small>
+            </div>
+          </div>
+
+          <div class="svc">
+            <div class="svc-icon">📦</div>
+            <div>
+              <div style="font-weight:600">Holiday Packages</div>
+              <small class="muted">Popular deals</small>
+            </div>
+          </div>
+
+          <div class="svc">
+            <div class="svc-icon">🧳</div>
+            <div>
+              <div style="font-weight:600">Tours & Activities</div>
+              <small class="muted">Explore</small>
+            </div>
+          </div>
+
+          <div class="svc">
+            <div class="svc-icon">🏦</div>
+            <div>
+              <div style="font-weight:600">Forex & Cards</div>
+              <small class="muted">Currency & cards</small>
+            </div>
+          </div>
+        </div>
+
+        <!-- Offers -->
+        <div class="offers-header">
+          <h3 style="margin:0">Offers & Deals</h3>
+          <div class="offers-tabs" role="tablist">
+            <button class="offer-tab k-active" data-filter="trending">Trending</button>
+            <button class="offer-tab" data-filter="flights">Flights</button>
+            <button class="offer-tab" data-filter="hotels">Hotels</button>
+            <button class="offer-tab" data-filter="bank">Bank Offers</button>
+          </div>
+        </div>
+
+        <div class="offers-wrap" id="offersWrap">
+          <div class="offer-card">
+            <h4>Up to 35% off on Hotels</h4>
+            <p>Limited time: exclusive partner discounts on hotel bookings.</p>
+          </div>
+          <div class="offer-card">
+            <h4>Bank Cashback</h4>
+            <p>Pay with select cards & get instant cashback up to ₹1500.</p>
+          </div>
+          <div class="offer-card">
+            <h4>Weekend Getaways</h4>
+            <p>Short trips starting at ₹1999 — book quick!</p>
+          </div>
+          <div class="offer-card">
+            <h4>Flight Deals</h4>
+            <p>Save on early morning and red-eye flights.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right column -->
+      <div>
+        <div class="panel">
+          <div class="right-top">
+            <div>
+              <div style="font-weight:700">Search Results</div>
+              <div class="muted">Fast mock results — connect to API later</div>
+            </div>
+            <div>
+              <div class="muted">Sort</div>
+              <select id="sortSelect" class="input" style="min-width:160px">
+                <option value="price">Price: Low to High</option>
+                <option value="duration">Duration</option>
+                <option value="departure">Departure Time</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="results" id="results">
+            <div class="muted">No search performed yet. Use the flight search on the left to see a mock result list.</div>
+          </div>
+        </div>
+
+        <div class="panel" style="margin-top:14px">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <h3 style="margin:0">Recommended</h3>
+            <div class="muted">Top picks for you</div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px">
+            <div class="result-card">
+              <div class="meta">
+                <div style="font-weight:700">Hotels Special</div>
+                <div class="muted" style="font-size:13px">Starting ₹999</div>
+              </div>
+              <div class="price">₹999</div>
+            </div>
+
+            <div class="result-card">
+              <div class="meta">
+                <div style="font-weight:700">Weekend Bus</div>
+                <div class="muted" style="font-size:13px">AC Volvo</div>
+              </div>
+              <div class="price">₹499</div>
+            </div>
+
+            <div class="result-card" style="grid-column:'span 2'">
+              <div class="meta">
+                <div style="font-weight:700">Travel Insurance</div>
+                <div class="muted" style="font-size:13px">₹199 per trip</div>
+              </div>
+              <div class="price">₹199</div>
+            </div>
+
+            <div class="result-card">
+              <div class="meta">
+                <div style="font-weight:700">Airport Cab</div>
+                <div class="muted" style="font-size:13px">Safe & on-time</div>
+              </div>
+              <div class="price">From ₹299</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div> <!-- layout -->
+  </div>
+
+  <script>
+    // --- Basic interactivity & behavior ---
+
+    // Set min date to today for all date inputs
+    const today = new Date().toISOString().split("T")[0];
+    document.querySelectorAll('input[type="date"]').forEach(i => i.setAttribute("min", today));
+
+    // Tab switching (Flights / Hotels / Trains / Packages)
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+
+        // adapt the search card based on tab if you want
+        const txt = tab.textContent.trim().toLowerCase();
+        const form = document.getElementById('flightForm');
+        if(txt.includes('flights')){
+          // show flight fields (already shown)
+          // could swap placeholders or adjust labels
+        } else if(txt.includes('hotels')){
+          // replace search card with hotel form (simple approach: change placeholders)
+          document.getElementById('source').placeholder = "City (e.g. Goa)";
+          document.getElementById('destination').placeholder = "Area (optional)";
+          document.getElementById('time').parentElement.style.display = 'none';
+          document.getElementById('travellers').placeholder = "Rooms / Guests";
+        } else {
+          // reset to defaults for other tabs
+          document.getElementById('source').placeholder = "City or Airport (e.g. New Delhi)";
+          document.getElementById('destination').placeholder = "City or Airport (e.g. Mumbai)";
+          document.getElementById('time').parentElement.style.display = '';
+          document.getElementById('travellers').placeholder = "Travellers";
+        }
+      });
+    });
+
+    // Swap Source & Destination
+    document.getElementById('swapBtn').addEventListener('click', () => {
+      const s = document.getElementById('source'), d = document.getElementById('destination');
+      [s.value, d.value] = [d.value, s.value];
+      // small pulse animation
+      [s,d].forEach(el => { el.style.transition='transform .18s'; el.style.transform='translateY(-4px)'; setTimeout(()=> el.style.transform='',160) });
+    });
+
+    // Offers filter tabs
+    document.querySelectorAll('.offer-tab').forEach(btn=>{
+      btn.addEventListener('click',()=>{
+        document.querySelectorAll('.offer-tab').forEach(b=>b.classList.remove('k-active'));
+        btn.classList.add('k-active');
+        // For demo, we don't filter real offers; add filtering behavior here if desired.
+      })
+    });
+
+    // Flight form submit -> show mock results
+    document.getElementById('flightForm').addEventListener('submit', (e)=>{
+      e.preventDefault();
+      const s = document.getElementById('source').value.trim();
+      const d = document.getElementById('destination').value.trim();
+      const date = document.getElementById('date').value;
+      const time = document.getElementById('time').value;
+      const travellers = document.getElementById('travellers').value;
+      const nonstop = document.getElementById('nonstop').checked;
+
+      const query = {source:s,destination:d,date,time,travellers,nonstop};
+      console.log("ITINARA Search:", query);
+
+      // Simple mock result generator
+      const resultsEl = document.getElementById('results');
+      resultsEl.innerHTML = ''; // clear
+
+      if(!s || !d){
+        resultsEl.innerHTML = '<div class="muted">Please provide both source and destination.</div>';
+        return;
+      }
+
+      // create 4 mock result cards
+      const carriers = ['BlueAir','SkyJet','IndiFly','AirNova'];
+      for(let i=0;i<4;i++){
+        const duration = `${1+i}h ${20 + i*10}m`;
+        const departHr = 4 + i*3;
+        const price = (3200 + i*650).toLocaleString('en-IN');
+        const card = document.createElement('div');
+        card.className = 'result-card';
+        card.innerHTML = `
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <div style="font-weight:700">${carriers[i]} ${i===1?'(Non-stop)':''}</div>
+            <div class="muted">${s || 'SRC'} → ${d || 'DST'} • ${date} • ${duration}</div>
+          </div>
+          <div style="text-align:right">
+            <div class="price">₹ ${price}</div>
+            <div style="margin-top:8px"><button class="submit" style="padding:8px 10px;font-size:13px;background:var(--primary);">Select</button></div>
+          </div>
+        `;
+        resultsEl.appendChild(card);
+      }
+
+      // show small toast-like update (in console too)
+      console.info('Displayed mock results for', query);
+    });
+
+    // sorting select (no real sorting on mock items but leave hook)
+    document.getElementById('sortSelect').addEventListener('change', (e)=>{
+      console.log('Sort by', e.target.value);
+      // Implement sorting on actual fetched results
+    });
+
+    // small keyboard accessibility: Enter in top searchbar focuses main source
+    document.querySelector('.searchbar input').addEventListener('keydown', (ev)=>{
+      if(ev.key === 'Enter'){ ev.preventDefault(); document.getElementById('source').focus(); }
+    });
+
+    // Basic lightweight autocomplete (local) for airports/cities — quick demo
+    const cities = ["New Delhi","Mumbai","Bengaluru","Kolkata","Chennai","Goa","Jaipur","Pune","Hyderabad","Ahmedabad"];
+    function attachSimpleAutocomplete(inputId){
+      const input = document.getElementById(inputId);
+      const drop = document.createElement('div');
+      drop.style.position='absolute';
+      drop.style.background='#fff';
+      drop.style.border='1px solid #e6eef9';
+      drop.style.borderRadius='8px';
+      drop.style.boxShadow='0 8px 18px rgba(3,102,214,0.06)';
+      drop.style.padding='6px';
+      drop.style.zIndex='9999';
+      drop.style.display='none';
+      document.body.appendChild(drop);
+
+      input.addEventListener('input', ()=>{
+        const rect = input.getBoundingClientRect();
+        drop.style.left = rect.left + 'px';
+        drop.style.top = rect.bottom + window.scrollY + 6 + 'px';
+        drop.style.minWidth = rect.width + 'px';
+        const v = input.value.toLowerCase().trim();
+        if(!v){ drop.style.display='none'; return; }
+        const matches = cities.filter(c => c.toLowerCase().includes(v)).slice(0,6);
+        if(matches.length===0){ drop.style.display='none'; return; }
+        drop.innerHTML = matches.map(m=>`<div style="padding:8px;border-radius:6px;cursor:pointer">${m}</div>`).join('');
+        drop.style.display = 'block';
+        drop.querySelectorAll('div').forEach((el,idx)=>{
+          el.addEventListener('click', ()=>{ input.value = matches[idx]; drop.style.display='none'; });
+        })
+      });
+
+      document.addEventListener('click', (ev)=>{ if(ev.target !== input) drop.style.display='none' });
+    }
+    attachSimpleAutocomplete('source');
+    attachSimpleAutocomplete('destination');
+
+  </script>
+</body>
+</html>
