@@ -548,41 +548,102 @@
     });
 
     // Basic lightweight autocomplete (local) for airports/cities — quick demo
-    const cities = ["New Delhi","Mumbai","Bengaluru","Kolkata","Chennai","Goa","Jaipur","Pune","Hyderabad","Ahmedabad"];
-    function attachSimpleAutocomplete(inputId){
-      const input = document.getElementById(inputId);
-      const drop = document.createElement('div');
-      drop.style.position='absolute';
-      drop.style.background='#fff';
-      drop.style.border='1px solid #e6eef9';
-      drop.style.borderRadius='8px';
-      drop.style.boxShadow='0 8px 18px rgba(3,102,214,0.06)';
-      drop.style.padding='6px';
-      drop.style.zIndex='9999';
-      drop.style.display='none';
-      document.body.appendChild(drop);
+    function attachSimpleAutocomplete(inputId) {
+  const input = document.getElementById(inputId);
+  const drop = document.createElement('div');
+  drop.style.position = 'absolute';
+  drop.style.background = '#fff';
+  drop.style.border = '1px solid #e6eef9';
+  drop.style.borderRadius = '8px';
+  drop.style.boxShadow = '0 8px 18px rgba(3,102,214,0.06)';
+  drop.style.padding = '6px';
+  drop.style.zIndex = '9999';
+  drop.style.display = 'none';
+  document.body.appendChild(drop);
 
-      input.addEventListener('input', ()=>{
-        const rect = input.getBoundingClientRect();
-        drop.style.left = rect.left + 'px';
-        drop.style.top = rect.bottom + window.scrollY + 6 + 'px';
-        drop.style.minWidth = rect.width + 'px';
-        const v = input.value.toLowerCase().trim();
-        if(!v){ drop.style.display='none'; return; }
-        const matches = cities.filter(c => c.toLowerCase().includes(v)).slice(0,6);
-        if(matches.length===0){ drop.style.display='none'; return; }
-        drop.innerHTML = matches.map(m=>`<div style="padding:8px;border-radius:6px;cursor:pointer">${m}</div>`).join('');
-        drop.style.display = 'block';
-        drop.querySelectorAll('div').forEach((el,idx)=>{
-          el.addEventListener('click', ()=>{ input.value = matches[idx]; drop.style.display='none'; });
-        })
+  let timer;
+input.addEventListener('input', () => {
+  clearTimeout(timer);
+  timer = setTimeout(async () => {
+    const rect = input.getBoundingClientRect();
+    drop.style.left = rect.left + 'px';
+    drop.style.top = rect.bottom + window.scrollY + 6 + 'px';
+    drop.style.minWidth = rect.width + 'px';
+
+    const v = input.value.trim();
+    if (!v) { drop.style.display = 'none'; return; }
+
+    try {
+      const res = await fetch(`http://127.0.0.1:8000/autocomplete?searchterm=${encodeURIComponent(v)}`, {
+        method: "POST"
+      });
+      const matches = await res.json(); // backend returns a plain list
+
+      console.log("Got from backend:", matches); // check browser console
+
+      if (!Array.isArray(matches) || matches.length === 0) {
+        drop.style.display = 'none';
+        return;
+      }
+
+      drop.innerHTML = matches
+        .slice(0, 6)
+        .map(m => `<div style="padding:8px;border-radius:6px;cursor:pointer">${m}</div>`)
+        .join('');
+
+      drop.style.display = 'block';
+
+      drop.querySelectorAll('div').forEach((el, idx) => {
+        el.addEventListener('click', () => {
+          input.value = matches[idx];
+          drop.style.display = 'none';
+        });
       });
 
-      document.addEventListener('click', (ev)=>{ if(ev.target !== input) drop.style.display='none' });
+    } catch (err) {
+      console.error("Autocomplete fetch error:", err);
+      drop.style.display = 'none';
     }
+  }, 200);
+});
+
+  document.addEventListener('click', ev => {
+    if (ev.target !== input) drop.style.display = 'none';
+  });
+}
+
     attachSimpleAutocomplete('source');
     attachSimpleAutocomplete('destination');
 
   </script>
+
+
+  <script>
+  document.getElementById("flightForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const payload = {
+      source: document.getElementById("source").value.trim(),
+      destination: document.getElementById("destination").value.trim(),
+      date: document.getElementById("date").value,
+      time: document.getElementById("time").value,
+      travellers: document.getElementById("travellers").value  // keep as string
+    };
+
+    try {
+      const res = await fetch("http://127.0.0.1:8000/journey", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await res.json();
+      console.log("Journey response:", data);
+    } catch (err) {
+      console.error("Error:", err);
+    }
+  });
+  </script>
+
 </body>
 </html>
