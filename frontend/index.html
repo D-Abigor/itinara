@@ -1,4 +1,5 @@
-<!DOCTYPE html>
+
+\+9*<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
@@ -15,7 +16,7 @@
       --muted:#6b7280;
       --card:#ffffff;
       --glass: rgba(255,255,255,0.7);
-      --shadow: 0 8px 30px rgba(15,23,42,0.12);
+      /--shadow: 0 8px 30px rgba(15,23,42,0.12);
       --radius:14px;
       --max-width:1200px;
     }
@@ -547,102 +548,91 @@
       if(ev.key === 'Enter'){ ev.preventDefault(); document.getElementById('source').focus(); }
     });
 
-    // Basic lightweight autocomplete (local) for airports/cities — quick demo
     function attachSimpleAutocomplete(inputId) {
-  const input = document.getElementById(inputId);
-  const drop = document.createElement('div');
-  drop.style.position = 'absolute';
-  drop.style.background = '#fff';
-  drop.style.border = '1px solid #e6eef9';
-  drop.style.borderRadius = '8px';
-  drop.style.boxShadow = '0 8px 18px rgba(3,102,214,0.06)';
-  drop.style.padding = '6px';
-  drop.style.zIndex = '9999';
-  drop.style.display = 'none';
-  document.body.appendChild(drop);
-
-  let timer;
-input.addEventListener('input', () => {
-  clearTimeout(timer);
-  timer = setTimeout(async () => {
-    const rect = input.getBoundingClientRect();
-    drop.style.left = rect.left + 'px';
-    drop.style.top = rect.bottom + window.scrollY + 6 + 'px';
-    drop.style.minWidth = rect.width + 'px';
-
-    const v = input.value.trim();
-    if (!v) { drop.style.display = 'none'; return; }
-
-    try {
-      const res = await fetch(`http://127.0.0.1:8000/autocomplete?searchterm=${encodeURIComponent(v)}`, {
-        method: "POST"
-      });
-      const matches = await res.json(); // backend returns a plain list
-
-      console.log("Got from backend:", matches); // check browser console
-
-      if (!Array.isArray(matches) || matches.length === 0) {
-        drop.style.display = 'none';
-        return;
-      }
-
-      drop.innerHTML = matches
-        .slice(0, 6)
-        .map(m => `<div style="padding:8px;border-radius:6px;cursor:pointer">${m}</div>`)
-        .join('');
-
-      drop.style.display = 'block';
-
-      drop.querySelectorAll('div').forEach((el, idx) => {
-        el.addEventListener('click', () => {
-          input.value = matches[idx];
-          drop.style.display = 'none';
-        });
-      });
-
-    } catch (err) {
-      console.error("Autocomplete fetch error:", err);
+      const input = document.getElementById(inputId);
+      const drop = document.createElement('div');
+      drop.style.position = 'absolute';
+      drop.style.background = '#fff';
+      drop.style.border = '1px solid #e6eef9';
+      drop.style.borderRadius = '8px';
+      drop.style.boxShadow = '0 8px 18px rgba(3,102,214,0.06)';
+      drop.style.padding = '6px';
+      drop.style.zIndex = '9999';
       drop.style.display = 'none';
-    }
-  }, 200);
-});
+      document.body.appendChild(drop);
+      let timer;
+      input.addEventListener('input', () => {
+        clearTimeout(timer);
+        timer = setTimeout(async () => {
+          const rect = input.getBoundingClientRect();
+          drop.style.left = rect.left + 'px';
+          drop.style.top = rect.bottom + window.scrollY + 6 + 'px';
+          drop.style.minWidth = rect.width + 'px';
 
-  document.addEventListener('click', ev => {
-    if (ev.target !== input) drop.style.display = 'none';
-  });
-}
+          const v = input.value.trim();
+          if (!v) { drop.style.display = 'none'; return; }
 
-    attachSimpleAutocomplete('source');
-    attachSimpleAutocomplete('destination');
+          try {
+            const res = await fetch(`http://127.0.0.1:8000/autocomplete?searchterm=${encodeURIComponent(v)}`);
+            const matches = await res.json();
+            console.log("Got from backend:", matches);
 
-  </script>
+            if (!Array.isArray(matches) || matches.length === 0) {
+              drop.style.display = 'none';
+              return;
+            }
 
+            drop.innerHTML = matches
+              .slice(0, 6)
+              .map(m => `<div style="padding:8px;border-radius:6px;cursor:pointer">${m}</div>`)
+              .join('');
 
-  <script>
-  document.getElementById("flightForm").addEventListener("submit", async (e) => {
-    e.preventDefault();
+            drop.style.display = 'block';
 
-    const payload = {
-      source: document.getElementById("source").value.trim(),
-      destination: document.getElementById("destination").value.trim(),
-      date: document.getElementById("date").value,
-      time: document.getElementById("time").value,
-      travellers: document.getElementById("travellers").value  // keep as string
-    };
-
-    try {
-      const res = await fetch("http://127.0.0.1:8000/journey", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
+            drop.querySelectorAll('div').forEach((el, idx) => {
+              el.addEventListener('click', () => {
+                input.value = matches[idx];
+                drop.style.display = 'none';
+              });
+            });
+          } catch (err) {
+            console.error("Autocomplete fetch error:", err);
+            drop.style.display = 'none';
+          }
+        }, 200); // delay for smoother typing
       });
 
-      const data = await res.json();
-      console.log("Journey response:", data);
-    } catch (err) {
-      console.error("Error:", err);
+      document.addEventListener('click', ev => {
+        if (ev.target !== input) drop.style.display = 'none';
+      });
     }
-  });
+
+      document.getElementById("flightForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const payload = {
+          source: document.getElementById("source").value.trim(),
+          destination: document.getElementById("destination").value.trim(),
+          date: document.getElementById("date").value,
+          time: document.getElementById("time").value + ":00",
+          travellers: document.getElementById("travellers").value  // keep as string
+        };
+
+        try {
+          const res = await fetch("http://127.0.0.1:8000/journey", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+          });
+
+          const data = await res.json();
+          console.log("Journey response:", data);
+        } catch (err) {
+          console.error("Error:", err);
+        }
+      });
+  attachSimpleAutocomplete('source');
+  attachSimpleAutocomplete('destination');
   </script>
 
 </body>

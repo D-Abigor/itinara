@@ -26,9 +26,6 @@ class journeydetail(BaseModel):
     travellers: str
     
 #--------------------------------------API ENDPOINTS--------------------------------#
-
-app.mount("/frontend", StaticFiles(directory="frontend", html=True), name="frontend")
-
 @app.post("/detours")
 async def getDetourLocs(request: Request):
     data = await request.json()
@@ -41,12 +38,14 @@ async def getWeatherAdvice(request: Request):
 async def initializeItinarary(request: journeydetail):
     return build_itinarary(request)
 
-@app.post("/autocomplete")
-async def autoComplete(searchterm):
+@app.get("/autocomplete")
+def autoComplete(searchterm: str):
     api = "https://photon.komoot.io/api/?q=" + searchterm + "&limit=" + str(photon_result_limit)
     response = requests.get(api)
     data = response.json()
     return [results["properties"]["name"] for results in data["features"]]
+
+app.mount("/", StaticFiles(directory="frontend/", html=True), name="landing")
 
 
 #--------------------helper functions----------------------#
@@ -75,7 +74,10 @@ def build_itinarary(details: journeydetail):
     dest_airports = amadeus.getNearestAirport(dest_coords)
     for src_airport in src_airports:
         for dest_airport in dest_airports:      # adding depart,arrive,flight number, cost, date, duration
-            airways.append([flight["itineraries"] for flight in amadeus.flights(src_airport,dest_airport, details.date, details.time, details.travellers)["data"]])
+            flights = amadeus.flights(src_airport,dest_airport, details.date, details.time, details.travellers)
+            print(flights)
+            if flights:
+                airways.append([flight["itineraries"] for flight in flights["data"]])
     print(airways[0])   
 
 
