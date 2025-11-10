@@ -2,7 +2,7 @@ from dotenv import load_dotenv
 import requests
 import os
 import time
-
+import airportsdata
 
 load_dotenv()
 
@@ -11,7 +11,10 @@ amadeusAPISecretKey = os.getenv("AMADEUSAPISECRET")
 maxFlightAPIResults = 10
 api_wait = 0.1
 
-
+def getAirportCoords(IATA):
+    airports = airportsdata.load('IATA')  # dictionary with IATA keys
+    coords = airports[IATA]['lat'], airports[IATA]['lon']
+    return coords
 
 def refreshTOKEN(key,secret):
 
@@ -87,7 +90,7 @@ def flights(source,destination, date, Time, travellers):
     data = response.json()
     if "errors" in data:
         if data["errors"][-1] == 401:             # handling token expiry
-            amadeusAPIToken = refreshTOKEN()
+            amadeusAPIToken = refreshTOKEN(amadeusAPIKey, amadeusAPISecretKey)
             response = requests.get(url, headers=header, json=payload)
             data = response.json()
     return data
@@ -105,4 +108,4 @@ def getNearestAirport(location):            # location as  [lat,long]
 
     response = requests.get(url, headers=header)
     data = response.json()
-    return [datas["iataCode"] for datas in data["data"]][:2]
+    return [[datas["iataCode"], datas["geoCode"]] for datas in data["data"]][:2]
