@@ -46,6 +46,7 @@ def autoComplete(searchterm: str):
     return [results["properties"]["name"] for results in data["features"]]
 
 app.mount("/", StaticFiles(directory="frontend/", html=True), name="landing")
+app.mount("/login", StaticFiles(directory="frontend/login", html=True), name="landing")
 
 
 #--------------------helper functions----------------------#
@@ -92,7 +93,8 @@ def build_itinarary(details: journeydetail):
                             temp_pack.append([dep_airport, dep_time, arr_airport, arr_time, flight_no ])
                         temp_pack.append(price)
                         airways[UID] = temp_pack
-    print(train_functions.find_trains_between_points(amadeus.getAirportCoords(dest_airports[0]), dest_coords))
+    print(airways)
+     
         
 
 

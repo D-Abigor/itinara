@@ -7,3 +7,4 @@ geopy
 os
 time
 airportsdata
+psycopg2-binary

@@ -1,5 +1,26 @@
 import json
 from geopy.distance import geodesic
+import psycopg2
+from dotenv import load_dotenv
+import os
+
+#-----------------------------initializing connection to train detail database -----------------------#
+
+
+load_dotenv()
+dbpass = os.getenv("PostgresqlConductorpassword")
+
+conn = psycopg2.connect(
+    dbname="train_data",
+    user="Conductor",
+    password=dbpass,
+    host="localhost",
+    port="9112"
+)
+cur = conn.cursor()
+cur.execute("SELECT version();")
+print(cur.fetchone())
+conn.close()
 
 
 def load_stations():
